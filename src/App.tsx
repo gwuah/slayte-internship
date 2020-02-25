@@ -1,14 +1,14 @@
 import React from "react";
 import "./App.css";
 
-interface Props {}
+interface State {
+  currentState: string;
+}
 
-interface State {}
-
-class App extends React.Component<Props, State> {
-  constructor(props: Props) {
+class App extends React.Component<{}, State> {
+  constructor(props: {}) {
     super(props);
-    this.state = {};
+    this.state = { currentState: "" };
   }
 
   render(): JSX.Element {
