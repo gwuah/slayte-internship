@@ -1,17 +1,9 @@
 import React from "react";
 
-interface Props {
-  children?: JSX.Element;
-}
-
-class StepWrapper extends React.Component<Props, {}> {
+class ApplicationPreview extends React.Component<{}, {}> {
   render(): JSX.Element {
-    return (
-      <div id="step-wrapper">
-        <div id="view">{this.props.children}</div>
-      </div>
-    );
+    return <div>Application Preview</div>;
   }
 }
 
-export default StepWrapper;
+export default ApplicationPreview;

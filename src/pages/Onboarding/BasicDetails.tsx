@@ -1,17 +1,9 @@
 import React from "react";
 
-interface Props {
-  children?: JSX.Element;
-}
-
-class StepWrapper extends React.Component<Props, {}> {
+class BasicDetails extends React.Component<{}, {}> {
   render(): JSX.Element {
-    return (
-      <div id="step-wrapper">
-        <div id="view">{this.props.children}</div>
-      </div>
-    );
+    return <div>Basic Details</div>;
   }
 }
 
-export default StepWrapper;
+export default BasicDetails;

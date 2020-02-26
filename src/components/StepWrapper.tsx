@@ -1,7 +1,9 @@
 import React from "react";
+import { Button } from "semantic-ui-react";
 
 interface Props {
   children: JSX.Element;
+  next: () => void;
 }
 
 class StepWrapper extends React.Component<Props, {}> {
@@ -9,6 +11,9 @@ class StepWrapper extends React.Component<Props, {}> {
     return (
       <div id="step-wrapper">
         <div id="view">{this.props.children}</div>
+        <div>
+          <Button onClick={this.props.next}>Next</Button>
+        </div>
       </div>
     );
   }
