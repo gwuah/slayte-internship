@@ -6,16 +6,11 @@ import StepWrapper from "../components/StepWrapper";
 import ApplicationPreview from "./ApplicationPreview";
 import Node from "../shared/lib/Node";
 import LinkedList from "../shared/lib/LinkedList";
+import { OnboardingStatuses } from "../shared/interfaces";
 
 interface State {
-  currentNode: Node;
-}
-
-enum OnboardingStatuses {
-  started = "onboarding_started",
-  basicDetailsProvided = "basic_details_provided",
-  userGoalsProvided = "user_goals_provided",
-  adminEmailsProvided = "admin_emails_provided",
+  currentNode: Node | null;
+  initialStage: boolean;
 }
 
 class App extends React.Component<{}, State> {
@@ -23,23 +18,29 @@ class App extends React.Component<{}, State> {
 
   constructor(props: {}) {
     super(props);
-    this._list.insertAtEnd(OnboardingStatuses.started);
-    this._list.insertAtEnd(OnboardingStatuses.basicDetailsProvided);
-    this._list.insertAtEnd(OnboardingStatuses.userGoalsProvided);
-    this._list.insertAtEnd(OnboardingStatuses.adminEmailsProvided);
 
-    this.state = { currentNode: this._list.head as Node };
+    this.state = { currentNode: null, initialStage: true };
   }
 
   next = async (): Promise<void> => {
     const { currentNode } = this.state;
-    const next = currentNode.next;
-    next && (await this.setState({ currentNode: next }));
+    if (currentNode) {
+      const next = currentNode.next;
+      next && (await this.setState({ currentNode: next, initialStage: false }));
+    }
+  };
+
+  prev = async (): Promise<void> => {
+    const { currentNode } = this.state;
+    if (currentNode) {
+      const prev = currentNode.prev;
+      prev && (await this.setState({ currentNode: prev, initialStage: false }));
+    }
   };
 
   generateView = (): JSX.Element => {
     const { currentNode } = this.state;
-    const onboardingStatus = currentNode.value;
+    const onboardingStatus = currentNode?.value;
 
     switch (onboardingStatus) {
       case OnboardingStatuses.started:
@@ -55,12 +56,25 @@ class App extends React.Component<{}, State> {
     }
   };
 
-  // async componentDidMount(): Promise<void> {}
+  async componentDidMount(): Promise<void> {
+    this._list.insertAtEnd(OnboardingStatuses.started);
+    this._list.insertAtEnd(OnboardingStatuses.basicDetailsProvided);
+    this._list.insertAtEnd(OnboardingStatuses.userGoalsProvided);
+    this._list.insertAtEnd(OnboardingStatuses.adminEmailsProvided);
+    await this.setState({ currentNode: this._list.head });
+  }
 
   render(): JSX.Element {
+    const { currentNode } = this.state;
     return (
       <div>
-        <StepWrapper next={this.next}>{this.generateView()}</StepWrapper>
+        <StepWrapper
+          currentStage={currentNode}
+          prev={this.prev}
+          next={this.next}
+        >
+          {this.generateView()}
+        </StepWrapper>
       </div>
     );
   }

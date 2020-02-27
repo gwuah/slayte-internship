@@ -19,5 +19,6 @@ export default class LinkedList {
     }
 
     curr.next = newNode;
+    newNode.prev = curr;
   }
 }

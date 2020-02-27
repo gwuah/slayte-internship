@@ -1,19 +1,63 @@
 import React from "react";
-import { Button } from "semantic-ui-react";
+import { Button, Grid } from "semantic-ui-react";
+import Node from "../shared/lib/Node";
+import { OnboardingStatuses } from "../shared/interfaces";
 
 interface Props {
+  currentStage: Node | null;
   children: JSX.Element;
   next: () => void;
+  prev: () => void;
 }
+
+const buttonStyle: React.CSSProperties = {
+  width: "100%",
+};
 
 class StepWrapper extends React.Component<Props, {}> {
   render(): JSX.Element {
+    let showProceedButton = false,
+      hideButtons = false,
+      nextButtonText = "Next";
+    const { currentStage } = this.props;
+
+    if (currentStage) {
+      currentStage.value === OnboardingStatuses.started &&
+        (showProceedButton = true);
+      currentStage.value === OnboardingStatuses.userGoalsProvided &&
+        (nextButtonText = "Finish");
+      currentStage.value === OnboardingStatuses.adminEmailsProvided &&
+        (hideButtons = true);
+    }
     return (
       <div id="step-wrapper">
         <div id="view">{this.props.children}</div>
-        <div>
-          <Button onClick={this.props.next}>Next</Button>
-        </div>
+        {!hideButtons && (
+          <Grid container columns="equal" stackable>
+            {showProceedButton ? (
+              <Grid.Row>
+                <Grid.Column>
+                  <Button style={buttonStyle} onClick={this.props.next}>
+                    Proceed
+                  </Button>
+                </Grid.Column>
+              </Grid.Row>
+            ) : (
+              <Grid.Row>
+                <Grid.Column>
+                  <Button style={buttonStyle} onClick={this.props.prev}>
+                    Back
+                  </Button>
+                </Grid.Column>
+                <Grid.Column>
+                  <Button style={buttonStyle} onClick={this.props.next}>
+                    {nextButtonText}
+                  </Button>
+                </Grid.Column>
+              </Grid.Row>
+            )}
+          </Grid>
+        )}
       </div>
     );
   }
