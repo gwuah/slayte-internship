@@ -119,7 +119,7 @@ class App extends React.Component<{}, State> {
       }
 
       if (currentNode.value === OnboardingStatuses.basicDetailsProvided) {
-        const hasError = await this.validateBasicDetails();
+        const hasError = await this.validateUserGoals();
         return hasError;
       }
     }
@@ -131,6 +131,7 @@ class App extends React.Component<{}, State> {
     return async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
       const value = e.target.value;
       await this.setState({ [key]: value });
+      console.log(this.state);
     };
   };
 
@@ -178,7 +179,12 @@ class App extends React.Component<{}, State> {
           />
         );
       case OnboardingStatuses.userGoalsProvided:
-        return <AdminEmailCollector />;
+        return (
+          <AdminEmailCollector
+            errors={basicDetailsErrors}
+            handleChange={this.handleChange}
+          />
+        );
       case OnboardingStatuses.adminEmailsProvided:
         return <ApplicationPreview />;
       default:

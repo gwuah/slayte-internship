@@ -29,7 +29,7 @@ const UserGoals = (props: Props): JSX.Element => {
         <h1>Hi {firstName}</h1>
       </div>
 
-      <Form error>
+      <Form>
         <Grid container columns="equal" stackable>
           <Grid.Column>
             <p>What are your main goals with Slayte?</p>

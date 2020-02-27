@@ -12,14 +12,20 @@ interface Props {
 
 const buttonStyle: React.CSSProperties = {
   width: "100%",
+  backgroundColor: "#8b62ff",
+  color: "white",
 };
 
 class StepWrapper extends React.Component<Props, {}> {
-  render(): JSX.Element {
+  render(): JSX.Element | null {
     let showProceedButton = false,
       hideButtons = false,
       nextButtonText = "Proceed";
     const { currentStage } = this.props;
+
+    let nextButtonStyle: React.CSSProperties = {
+      ...buttonStyle,
+    };
 
     if (currentStage) {
       currentStage.value === OnboardingStatuses.started &&
@@ -28,8 +34,9 @@ class StepWrapper extends React.Component<Props, {}> {
         (nextButtonText = "Finish");
       currentStage.value === OnboardingStatuses.adminEmailsProvided &&
         (hideButtons = true);
+      currentStage.value === OnboardingStatuses.userGoalsProvided &&
+        (nextButtonStyle = { ...buttonStyle, backgroundColor: "#28b166" });
     }
-
     return (
       <div id="step-wrapper">
         <div id="view">{this.props.children}</div>
@@ -51,7 +58,7 @@ class StepWrapper extends React.Component<Props, {}> {
                   </Button>
                 </Grid.Column>
                 <Grid.Column>
-                  <Button style={buttonStyle} onClick={this.props.next}>
+                  <Button style={nextButtonStyle} onClick={this.props.next}>
                     {nextButtonText}
                   </Button>
                 </Grid.Column>
