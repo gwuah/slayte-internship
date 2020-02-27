@@ -4,3 +4,19 @@ export enum OnboardingStatuses {
   userGoalsProvided = "user_goals_provided",
   adminEmailsProvided = "admin_emails_provided",
 }
+
+export type handleChangeResponse = (
+  e: React.ChangeEvent<HTMLInputElement>,
+) => void;
+
+export interface BasicDetailsErrors {
+  firstNameHasError: boolean;
+  lastNameHasError: boolean;
+  emailHasError: boolean;
+}
+
+export interface UserGoalsErrors {
+  firstGoalHasError: boolean;
+  secondGoalHasError: boolean;
+  thirdGoalHasError: boolean;
+}

@@ -6,11 +6,34 @@ import StepWrapper from "../components/StepWrapper";
 import ApplicationPreview from "./ApplicationPreview";
 import Node from "../shared/lib/Node";
 import LinkedList from "../shared/lib/LinkedList";
-import { OnboardingStatuses } from "../shared/interfaces";
+import {
+  OnboardingStatuses,
+  handleChangeResponse,
+  BasicDetailsErrors,
+  UserGoalsErrors,
+} from "../shared/interfaces";
+import "../App.css";
 
 interface State {
   currentNode: Node | null;
   initialStage: boolean;
+  firstName: string;
+  lastName: string;
+  email: string;
+  firstGoal: string;
+  secondGoal: string;
+  thirdGoal: string;
+  adminEmails: string[];
+  basicDetailsErrors: BasicDetailsErrors;
+  userGoalsErrors: UserGoalsErrors;
+  [x: string]:
+    | string
+    | BasicDetailsErrors
+    | string[]
+    | Node
+    | null
+    | boolean
+    | UserGoalsErrors;
 }
 
 class App extends React.Component<{}, State> {
@@ -19,12 +42,103 @@ class App extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props);
 
-    this.state = { currentNode: null, initialStage: true };
+    this.state = {
+      currentNode: null,
+      initialStage: true,
+      basicDetailsErrors: {
+        firstNameHasError: false,
+        lastNameHasError: false,
+        emailHasError: false,
+      },
+      userGoalsErrors: {
+        firstGoalHasError: false,
+        secondGoalHasError: false,
+        thirdGoalHasError: false,
+      },
+      firstName: "",
+      lastName: "",
+      email: "",
+      firstGoal: "",
+      secondGoal: "",
+      thirdGoal: "",
+      adminEmails: [],
+    };
   }
+
+  validateBasicDetails = async (): Promise<boolean> => {
+    const { firstName, lastName, email, basicDetailsErrors } = this.state;
+    let hasError = false;
+
+    if (!firstName) {
+      basicDetailsErrors.firstNameHasError = true;
+      hasError = true;
+    }
+    if (!lastName) {
+      basicDetailsErrors.lastNameHasError = true;
+      hasError = true;
+    }
+    if (!email) {
+      basicDetailsErrors.emailHasError = true;
+      hasError = true;
+    }
+
+    await this.setState({ basicDetailsErrors });
+
+    return hasError;
+  };
+
+  validateUserGoals = async (): Promise<boolean> => {
+    const { firstGoal, secondGoal, thirdGoal, userGoalsErrors } = this.state;
+    let hasError = false;
+
+    if (!firstGoal) {
+      userGoalsErrors.firstGoalHasError = true;
+      hasError = true;
+    }
+    if (!secondGoal) {
+      userGoalsErrors.secondGoalHasError = true;
+      hasError = true;
+    }
+    if (!thirdGoal) {
+      userGoalsErrors.thirdGoalHasError = true;
+      hasError = true;
+    }
+
+    await this.setState({ userGoalsErrors });
+
+    return hasError;
+  };
+
+  runValidations = async (): Promise<boolean> => {
+    const { currentNode } = this.state;
+
+    if (currentNode) {
+      if (currentNode.value === OnboardingStatuses.started) {
+        const hasError = await this.validateBasicDetails();
+        return hasError;
+      }
+
+      if (currentNode.value === OnboardingStatuses.basicDetailsProvided) {
+        const hasError = await this.validateBasicDetails();
+        return hasError;
+      }
+    }
+
+    return false;
+  };
+
+  handleChange = (key: string): handleChangeResponse => {
+    return async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+      const value = e.target.value;
+      await this.setState({ [key]: value });
+    };
+  };
 
   next = async (): Promise<void> => {
     const { currentNode } = this.state;
-    if (currentNode) {
+    const hasError = await this.runValidations();
+
+    if (currentNode && !hasError) {
       const next = currentNode.next;
       next && (await this.setState({ currentNode: next, initialStage: false }));
     }
@@ -39,14 +153,30 @@ class App extends React.Component<{}, State> {
   };
 
   generateView = (): JSX.Element => {
-    const { currentNode } = this.state;
+    const {
+      currentNode,
+      basicDetailsErrors,
+      userGoalsErrors,
+      firstName,
+    } = this.state;
     const onboardingStatus = currentNode?.value;
 
     switch (onboardingStatus) {
       case OnboardingStatuses.started:
-        return <BasicDetails />;
+        return (
+          <BasicDetails
+            errors={basicDetailsErrors}
+            handleChange={this.handleChange}
+          />
+        );
       case OnboardingStatuses.basicDetailsProvided:
-        return <UserGoals />;
+        return (
+          <UserGoals
+            firstName={firstName}
+            errors={userGoalsErrors}
+            handleChange={this.handleChange}
+          />
+        );
       case OnboardingStatuses.userGoalsProvided:
         return <AdminEmailCollector />;
       case OnboardingStatuses.adminEmailsProvided:
@@ -67,7 +197,7 @@ class App extends React.Component<{}, State> {
   render(): JSX.Element {
     const { currentNode } = this.state;
     return (
-      <div>
+      <div className="App">
         <StepWrapper
           currentStage={currentNode}
           prev={this.prev}

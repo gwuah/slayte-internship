@@ -18,7 +18,7 @@ class StepWrapper extends React.Component<Props, {}> {
   render(): JSX.Element {
     let showProceedButton = false,
       hideButtons = false,
-      nextButtonText = "Next";
+      nextButtonText = "Proceed";
     const { currentStage } = this.props;
 
     if (currentStage) {
@@ -29,6 +29,7 @@ class StepWrapper extends React.Component<Props, {}> {
       currentStage.value === OnboardingStatuses.adminEmailsProvided &&
         (hideButtons = true);
     }
+
     return (
       <div id="step-wrapper">
         <div id="view">{this.props.children}</div>
