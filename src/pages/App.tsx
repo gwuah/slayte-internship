@@ -15,6 +15,7 @@ import {
 import "../App.css";
 
 interface State {
+  authenticated: boolean;
   currentNode: Node | null;
   initialStage: boolean;
   firstName: string;
@@ -43,6 +44,7 @@ class App extends React.Component<{}, State> {
     super(props);
 
     this.state = {
+      authenticated: false,
       currentNode: null,
       initialStage: true,
       basicDetailsErrors: {
@@ -201,9 +203,11 @@ class App extends React.Component<{}, State> {
   }
 
   render(): JSX.Element {
-    const { currentNode } = this.state;
-    return (
-      <div className="App">
+    const { currentNode, authenticated } = this.state;
+    let view: JSX.Element | null;
+
+    if (authenticated) {
+      view = (
         <StepWrapper
           currentStage={currentNode}
           prev={this.prev}
@@ -211,8 +215,11 @@ class App extends React.Component<{}, State> {
         >
           {this.generateView()}
         </StepWrapper>
-      </div>
-    );
+      );
+    } else {
+      view = <div>You have to login first</div>;
+    }
+    return <div className="App">{view}</div>;
   }
 }
 
