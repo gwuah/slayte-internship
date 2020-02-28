@@ -14,6 +14,10 @@ import {
 } from "../shared/interfaces";
 import "../App.css";
 
+import * as firebase from "firebase";
+import * as firebaseui from "firebaseui";
+import firebaseConfig from "../shared/firebaseConfig";
+
 interface State {
   authenticated: boolean;
   currentNode: Node | null;
@@ -163,6 +167,7 @@ class App extends React.Component<{}, State> {
       firstName,
     } = this.state;
     const onboardingStatus = currentNode?.value;
+    console.log(currentNode);
 
     switch (onboardingStatus) {
       case OnboardingStatuses.started:
@@ -195,12 +200,55 @@ class App extends React.Component<{}, State> {
   };
 
   async componentDidMount(): Promise<void> {
+    const existingAccount = localStorage["firebaseui::rememberedAccounts"];
+
+    if (existingAccount) {
+      await this.setState({ authenticated: true });
+      return;
+    }
+
     this._list.insertAtEnd(OnboardingStatuses.started);
     this._list.insertAtEnd(OnboardingStatuses.basicDetailsProvided);
     this._list.insertAtEnd(OnboardingStatuses.userGoalsProvided);
     this._list.insertAtEnd(OnboardingStatuses.adminEmailsProvided);
     await this.setState({ currentNode: this._list.head });
+
+    firebase.initializeApp(firebaseConfig);
+
+    const ui = new firebaseui.auth.AuthUI(firebase.auth());
+    ui.start("#firebaseui-auth-container", {
+      signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+    });
+
+    const uiConfig = {
+      callbacks: {
+        signInSuccessWithAuthResult: (): boolean => {
+          this.setState({ authenticated: true });
+          return true;
+        },
+        uiShown: function(): void {
+          const loader = document.getElementById("loader");
+          if (loader) {
+            loader.style.display = "none";
+          }
+        },
+      },
+      signInFlow: "popup",
+      // signInSuccessUrl: "<url-to-redirect-to-on-success>",
+      signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+    };
+
+    ui.start("#firebaseui-auth-container", uiConfig);
   }
+
+  logout = (): void => {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        this.setState({ authenticated: false });
+      });
+  };
 
   render(): JSX.Element {
     const { currentNode, authenticated } = this.state;
@@ -217,8 +265,14 @@ class App extends React.Component<{}, State> {
         </StepWrapper>
       );
     } else {
-      view = <div>You have to login first</div>;
+      view = (
+        <div>
+          <div id="firebaseui-auth-container"></div>
+          {/* <div id="loader">Loading...</div>{" "} */}
+        </div>
+      );
     }
+
     return <div className="App">{view}</div>;
   }
 }
