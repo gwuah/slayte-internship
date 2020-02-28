@@ -17,6 +17,7 @@ import "../App.css";
 import * as firebase from "firebase";
 import * as firebaseui from "firebaseui";
 import firebaseConfig from "../shared/firebaseConfig";
+import { Grid, Button } from "semantic-ui-react";
 
 interface State {
   authenticated: boolean;
@@ -43,6 +44,7 @@ interface State {
 
 class App extends React.Component<{}, State> {
   _list: LinkedList = new LinkedList();
+  _firebase = firebase.initializeApp(firebaseConfig);
 
   constructor(props: {}) {
     super(props);
@@ -202,20 +204,18 @@ class App extends React.Component<{}, State> {
   async componentDidMount(): Promise<void> {
     const existingAccount = localStorage["firebaseui::rememberedAccounts"];
 
-    if (existingAccount) {
-      await this.setState({ authenticated: true });
-      return;
-    }
-
     this._list.insertAtEnd(OnboardingStatuses.started);
     this._list.insertAtEnd(OnboardingStatuses.basicDetailsProvided);
     this._list.insertAtEnd(OnboardingStatuses.userGoalsProvided);
     this._list.insertAtEnd(OnboardingStatuses.adminEmailsProvided);
     await this.setState({ currentNode: this._list.head });
 
-    firebase.initializeApp(firebaseConfig);
+    if (existingAccount) {
+      await this.setState({ authenticated: true });
+      return;
+    }
 
-    const ui = new firebaseui.auth.AuthUI(firebase.auth());
+    const ui = new firebaseui.auth.AuthUI(this._firebase.auth());
     ui.start("#firebaseui-auth-container", {
       signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
     });
@@ -242,11 +242,13 @@ class App extends React.Component<{}, State> {
   }
 
   logout = (): void => {
-    firebase
+    this._firebase
       .auth()
       .signOut()
-      .then(() => {
-        this.setState({ authenticated: false });
+      .then(async () => {
+        localStorage.clear();
+        await this.setState({ authenticated: false });
+        window.location.reload();
       });
   };
 
@@ -261,7 +263,16 @@ class App extends React.Component<{}, State> {
           prev={this.prev}
           next={this.next}
         >
-          {this.generateView()}
+          <div>
+            <Grid container columns="equal" stackable>
+              <Grid.Row>
+                <Grid.Column>
+                  <Button onClick={this.logout}>Logout</Button>
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
+            {this.generateView()}
+          </div>
         </StepWrapper>
       );
     } else {
