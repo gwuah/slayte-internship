@@ -3,7 +3,7 @@ import { render } from "@testing-library/react";
 import App from "./pages/App";
 
 test("renders learn react link", () => {
-  const { getByText } = render(<App />);
-  const linkElement = getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const { getByTestId } = render(<App />);
+  const divElement = getByTestId("firebaseui-auth-container");
+  expect(divElement).toBeInTheDocument();
 });
