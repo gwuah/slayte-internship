@@ -226,7 +226,6 @@ class App extends React.Component<{}, State> {
     this._list.insertAtEnd(OnboardingStatuses.userGoalsProvided);
     this._list.insertAtEnd(OnboardingStatuses.adminEmailsProvided);
     await this.setState({
-      // currentNode: this._list.head?.next?.next?.next as Node,
       currentNode: this._list.head,
     });
 
@@ -236,10 +235,6 @@ class App extends React.Component<{}, State> {
     }
 
     const ui = new firebaseui.auth.AuthUI(this._firebase.auth());
-
-    // ui.start("#firebaseui-auth-container", {
-    //   signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
-    // });
 
     const uiConfig = {
       callbacks: {
@@ -255,7 +250,6 @@ class App extends React.Component<{}, State> {
         },
       },
       signInFlow: "popup",
-      // signInSuccessUrl: "<url-to-redirect-to-on-success>",
       signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
     };
 
@@ -308,7 +302,6 @@ class App extends React.Component<{}, State> {
             data-testid="firebaseui-auth-container"
             id="firebaseui-auth-container"
           ></div>
-          {/* <div id="loader">Loading...</div>{" "} */}
         </div>
       );
     }
