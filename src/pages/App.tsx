@@ -265,7 +265,12 @@ class App extends React.Component<{}, State> {
         >
           <div>
             <Grid container columns="equal" stackable>
-              <Grid.Row>
+              <Grid.Row
+                textAlign="right"
+                style={{
+                  padding: "30px",
+                }}
+              >
                 <Grid.Column>
                   <Button onClick={this.logout}>Logout</Button>
                 </Grid.Column>
